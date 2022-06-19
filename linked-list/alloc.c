@@ -3,17 +3,29 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct list_t {
+typedef struct list_t list_t;
+
+struct list_t {
     size_t size;
     list_t* next;
     bool free;
-} list_t;
+};
 
 list_t* first = NULL;
 list_t* last = NULL;
 
+list_t* create_block(size_t size);
+list_t* get_free_block(list_t* current, size_t size);
+void* malloc(size_t size);
+void* calloc(size_t n, size_t size);
+void* realloc(void* src, size_t size);
+void free(void* ptr);
+
 list_t* create_block(size_t size) {
     list_t* block = sbrk(size + sizeof(list_t));
+    
+    if (!block) return NULL;
+    
     block->size = size;
     block->next = NULL;
     
