@@ -1,4 +1,4 @@
-#include "alloc.c"
+#include "alloc.h"
 
 int main() {
     size_t length = 10;

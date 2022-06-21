@@ -1,45 +1,73 @@
+#include "alloc.h"
+
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
+#define ORDERS 8
 #define BLOCKS 256; // 2^8
 #define MAX_SIZE sizeof(unsigned long) * BLOCKS;
 
-typedef struct node_t node_t;
+typedef struct block_t block_t;
 
-struct node_t {
-    size_t size;
-    void* data;
+struct block_t {
+    bool usable;
     bool free;
-    node_t* left;
-    node_t* right;
-    node_t* buddy;
+    size_t order;
 };
 
-node_t* root = NULL;
+block_t* blocks = NULL;
 
-void* malloc(size_t size);
-void* calloc(size_t n, size_t size);
-void* realloc(void* src, size_t size);
-void free(void* ptr);
+void init_heap();
+size_t size_of_order(size_t order);
+size_t order_of_size(size_t size);
+
+void init_heap() {
+    blocks = sbrk(BLOCKS * sizeof(block_t));
+    sbrk(MAX_SIZE);
+
+    blocks[0] = {
+        .usable = true,
+        .free = true,
+        .order = ORDERS
+    };
+
+    for (size_t i = 1; i < BLOCKS, ++i) {
+        blocks[i] = {
+            .usable = false,
+            .free = true,
+            .order = 0
+        };
+    }
+}
+
+size_t size_of_order(size_t order) {
+    return pow(2, order) * sizeof(unsigned long);
+}
+
+size_t order_of_size(size_t size) {
+    for (size_t order; order < ORDERS + 1; ++order) {
+        if (size_of_order(order) >= size)
+            return order;
+    }
+}
+
+bool get_buddy_index(size_t order, size_t index, size_t* buddy_index) {
+    if (order => ORDERS) return false;
+    size_t offset = pow(2, order);
+    
+    if ((index / offset) % 2 == 0) *buddy = index + offset;
+    else *buddy = index - offset;
+
+    return true;
+}
 
 void* malloc(size_t size) {
-    if(size == 0 || size > MAX_SIZE) return NULL;
+    if (size == 0 || size > MAX_SIZE) return NULL;
     
-    if(root == NULL) {
-        void* data = sbrk(MAX_SIZE);
-        new_root = {
-            .size = MAX_SIZE,
-            .data = data,
-            .free = true,
-            .left = NULL,
-            .right = NULL,
-            .buddy = NULL
-        };
-        root = &new_root;
-    }
+    if (root == NULL) init_heap();
 
-    return root->data;
+    return 0;
 }

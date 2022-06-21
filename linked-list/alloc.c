@@ -1,3 +1,5 @@
+#include "alloc.h"
+
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -16,9 +18,6 @@ list_t* last = NULL;
 
 list_t* create_block(size_t size);
 list_t* get_free_block(list_t* current, size_t size);
-void* malloc(size_t size);
-void* calloc(size_t n, size_t size);
-void* realloc(void* src, size_t size);
 void free(void* ptr);
 
 list_t* create_block(size_t size) {
