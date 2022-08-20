@@ -39,8 +39,8 @@ int main() {
     printf("OK\n");
     test_n++;
 
-    printf("%lu: calloc size 0\ntesting... ", test_n);
-    unsigned long int* memory_2 = calloc(length, 0);
+    printf("%lu: calloc n 0\ntesting... ", test_n);
+    unsigned long int* memory_2 = calloc(0, sizeof(unsigned long int));
     if(memory_2) {
         printf("FAIL\ncalloc: Memory is not NULL\n");
         return 1;
