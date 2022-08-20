@@ -61,6 +61,7 @@ int main() {
         }
     }
     printf("OK\n");
+    test_n++;
 
     printf("%lu: realloc src null or size 0\ntesting... ", test_n);
     unsigned long int* memory_3 = realloc(NULL, length);
@@ -74,6 +75,7 @@ int main() {
         return 1;
     }
     printf("OK\n");
+    test_n++;
 
     printf("%lu: realloc from size 10 to 20\ntesting... ", test_n);
     size_t new_length = 20;
@@ -88,6 +90,7 @@ int main() {
         }
     }
     printf("OK\n");
+    test_n++;
 
     printf("%lu: freeing memory\ntesting... ", test_n);
     free(memory_1);
