@@ -1,5 +1,5 @@
-#ifndef ALLOC_H
-#define ALLOC_H
+#ifndef EDAF35_ALLOC_H
+#define EDAF35_ALLOC_H
 
 #include <unistd.h>
 
