@@ -7,7 +7,7 @@
 #include <math.h>
 
 #define ORDERS 8
-#define BLOCKS 256; // 2^8
+#define BLOCKS 256 // 2^8
 #define MAX_SIZE sizeof(unsigned long) * BLOCKS;
 
 typedef struct block_t block_t;
