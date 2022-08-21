@@ -16,8 +16,8 @@ int main() {
     printf("OK\n");
     test_n++;
 
-    printf("%lu: malloc size 10\ntesting... ", test_n);
     size_t length = 10;
+    printf("%lu: malloc size %lu\ntesting... ", test_n, length);
     memory_1 = malloc(length * sizeof(unsigned long int)); 
     if (!memory_1) {
         printf("FAIL\nmalloc: Memory is NULL\n");
@@ -48,7 +48,7 @@ int main() {
     printf("OK\n");
     test_n++;
     
-    printf("%lu: calloc n 10\ntesting... ", test_n);
+    printf("%lu: calloc n %lu\ntesting... ", test_n, length);
     memory_2 = calloc(length, sizeof(unsigned long int));
     if(!memory_2) {
         printf("FAIL\ncalloc: Memory is NULL\n");
@@ -63,7 +63,7 @@ int main() {
     printf("OK\n");
     test_n++;
 
-    printf("%lu: realloc src null or size 0\ntesting... ", test_n);
+    printf("%lu: realloc src NULL or size 0\ntesting... ", test_n);
     unsigned long int* memory_3 = realloc(NULL, length);
     if (!memory_3) {
         printf("FAIL\nrealloc: Memory is NULL\n");
@@ -77,8 +77,8 @@ int main() {
     printf("OK\n");
     test_n++;
 
-    printf("%lu: realloc from size 10 to 20\ntesting... ", test_n);
     size_t new_length = 20;
+    printf("%lu: realloc from size %lu to %lu\ntesting... ", test_n, length, new_length);
     memory_1 = realloc(memory_1, new_length * sizeof(unsigned long int));
     for (size_t i = length; i < new_length; ++i) {
         memory_1[i] = i;
@@ -92,8 +92,8 @@ int main() {
     printf("OK\n");
     test_n++;
     
-    printf("%lu: realloc to 100000000 two times\ntesting... ", test_n);
     new_length = 100000000;
+    printf("%lu: realloc to %lu two times\ntesting... ", test_n, new_length);
     memory_1 = realloc(memory_1, new_length * sizeof(unsigned long int));
     memory_2 = realloc(memory_2, new_length * sizeof(unsigned long int));
     for (size_t i = 0; i < new_length; ++i) {
@@ -108,6 +108,32 @@ int main() {
         if(memory_2[i] != new_length - i - 1) {
             printf("FAIL\nrealloc: Memory[%lu] == %lu, and not %lu\n", i, memory_2[i], new_length - i);
             return 1;
+        }
+    }
+    printf("OK\n");
+    test_n++;
+
+    size_t iterations = 10000;
+    printf("%lu: malloc and freeing %lu times\ntesting... ", test_n, iterations);
+    for (size_t i = 0; i < iterations; ++i) {
+        new_length = 100 * i;
+        free(memory_1);
+        free(memory_2);
+        memory_1 = malloc(new_length * sizeof(unsigned long int));
+        memory_2 = malloc(new_length * sizeof(unsigned long int));
+        for (size_t j = 0; j < new_length; ++j) {
+            memory_1[j] = j;
+            memory_2[new_length - j - 1] = j;
+        }
+        for (size_t j = 0; j < new_length; ++j) {
+            if(memory_1[j] != j) {
+                printf("FAIL\nmalloc: Memory[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_1[j], j, i);
+                return 1;
+            }
+            if(memory_2[j] != new_length - j - 1) {
+                printf("FAIL\nmalloc: Memory[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_2[j], new_length - j, i);
+                return 1;
+            }
         }
     }
     printf("OK\n");

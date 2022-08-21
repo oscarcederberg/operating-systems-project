@@ -1,13 +1,17 @@
 CFLAGS = -Wall -O0 -g
 
 test-linked:
+	cp test.c linked/test.c && \
 	cd linked && \
 	gcc test.c edaf35_alloc.c -o test $(CFLAGS) && \
+	rm test.c && \
 	./test
 
 test-buddy:
+	cp test.c buddy/test.c && \
 	cd buddy && \
 	gcc test.c edaf35_alloc.c -o test $(CFLAGS) && \
+	rm test.c && \
 	./test
 
 build-linked:
