@@ -39,12 +39,19 @@ int main() {
     printf("OK\n");
     test_n++;
 
-    printf("%lu: calloc n 0\ntesting... ", test_n);
+    printf("%lu: calloc n 0 or size 0\ntesting... ", test_n);
     unsigned long int* memory_2 = calloc(0, sizeof(unsigned long int));
     if(memory_2) {
         printf("FAIL\ncalloc: Memory is not NULL\n");
         return 1;
     }
+    free(memory_2);
+    memory_2 = calloc(0, sizeof(unsigned long int));
+    if(memory_2) {
+        printf("FAIL\ncalloc: Memory is not NULL\n");
+        return 1;
+    }
+    free(memory_2);
     printf("OK\n");
     test_n++;
     
@@ -92,29 +99,8 @@ int main() {
     printf("OK\n");
     test_n++;
     
-    new_length = 100000000;
-    printf("%lu: realloc to %lu two times\ntesting... ", test_n, new_length);
-    memory_1 = realloc(memory_1, new_length * sizeof(unsigned long int));
-    memory_2 = realloc(memory_2, new_length * sizeof(unsigned long int));
-    for (size_t i = 0; i < new_length; ++i) {
-        memory_1[i] = i;
-        memory_2[new_length - i - 1] = i;
-    }
-    for (size_t i = 0; i < new_length; ++i) {
-        if(memory_1[i] != i) {
-            printf("FAIL\nrealloc: Memory[%lu] == %lu, and not %lu\n", i, memory_1[i], i);
-            return 1;
-        }
-        if(memory_2[i] != new_length - i - 1) {
-            printf("FAIL\nrealloc: Memory[%lu] == %lu, and not %lu\n", i, memory_2[i], new_length - i);
-            return 1;
-        }
-    }
-    printf("OK\n");
-    test_n++;
-
-    size_t iterations = 10000;
-    printf("%lu: malloc and freeing %lu times\ntesting... ", test_n, iterations);
+    size_t iterations = 1000;
+    printf("%lu: malloc, storing, and freeing %lu times\ntesting... ", test_n, iterations);
     for (size_t i = 0; i < iterations; ++i) {
         new_length = 100 * i;
         free(memory_1);
