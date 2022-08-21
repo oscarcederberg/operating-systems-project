@@ -28,14 +28,14 @@ void init_heap() {
     blocks = sbrk(BLOCKS * sizeof(block_t));
     sbrk(MAX_SIZE);
 
-    blocks[0] = {
+    blocks[0] = (block_t) {
         .usable = true,
         .free = true,
         .order = ORDERS
     };
 
     for (size_t i = 1; i < BLOCKS; ++i) {
-        blocks[i] = {
+        blocks[i] = (block_t) {
             .usable = false,
             .free = true,
             .order = 0
@@ -67,7 +67,7 @@ bool get_buddy_index(size_t order, size_t index, size_t* buddy) {
 void* malloc(size_t size) {
     if (size == 0 || size > MAX_SIZE) return NULL;
     
-    if (root == NULL) init_heap();
+    if (blocks == NULL) init_heap();
 
     return 0;
 }

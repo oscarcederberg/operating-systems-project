@@ -4,15 +4,15 @@ test-linked:
 	cp test.c linked/test.c && \
 	cd linked && \
 	gcc test.c edaf35_alloc.c -o test $(CFLAGS) && \
-	rm test.c && \
-	./test
+	./test || \
+	rm test.c
 
 test-buddy:
 	cp test.c buddy/test.c && \
 	cd buddy && \
 	gcc test.c edaf35_alloc.c -o test $(CFLAGS) && \
-	rm test.c && \
-	./test
+	./test || \
+	rm test.c
 
 build-linked:
 	cp linked/edaf35_alloc.* gawk-3.1.8/ && \
