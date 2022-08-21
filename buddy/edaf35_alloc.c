@@ -8,7 +8,7 @@
 
 #define ORDERS 8
 #define BLOCKS 256 // 2^8
-#define MAX_SIZE sizeof(unsigned long) * BLOCKS;
+#define MAX_SIZE BLOCKS * sizeof(unsigned long int)
 
 typedef struct block_t block_t;
 
@@ -34,7 +34,7 @@ void init_heap() {
         .order = ORDERS
     };
 
-    for (size_t i = 1; i < BLOCKS, ++i) {
+    for (size_t i = 1; i < BLOCKS; ++i) {
         blocks[i] = {
             .usable = false,
             .free = true,
@@ -54,8 +54,8 @@ size_t order_of_size(size_t size) {
     }
 }
 
-bool get_buddy_index(size_t order, size_t index, size_t* buddy_index) {
-    if (order => ORDERS) return false;
+bool get_buddy_index(size_t order, size_t index, size_t* buddy) {
+    if (order >= ORDERS) return false;
     size_t offset = pow(2, order);
     
     if ((index / offset) % 2 == 0) *buddy = index + offset;

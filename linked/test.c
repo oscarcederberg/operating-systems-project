@@ -32,7 +32,7 @@ int main() {
     }
     for (size_t i = 0; i < length; ++i) {
         if(memory_1[i] != i) {
-            printf("FAIL\nmalloc: Memory[%lu] == %lu, and not %lu!\n", i, memory_1[i], i);
+            printf("FAIL\nmalloc: Memory[%lu] == %lu, and not %lu\n", i, memory_1[i], i);
             return 1;
         }
     }
@@ -56,7 +56,7 @@ int main() {
     }
     for (size_t i = 0; i < length; ++i) {
         if(memory_2[i] != 0) {
-            printf("FAIL\ncalloc: Memory[%lu] == %lu, and not 0!\n", i, memory_1[i]);
+            printf("FAIL\ncalloc: Memory[%lu] == %lu, and not 0\n", i, memory_1[i]);
             return 1;
         }
     }
@@ -85,10 +85,36 @@ int main() {
     }
     for (size_t i = 0; i < new_length; ++i) {
         if(memory_1[i] != i) {
-            printf("FAIL\nrealloc: Memory[%lu] == %lu, and not %lu!\n", i, memory_1[i], i);
+            printf("FAIL\nrealloc: Memory[%lu] == %lu, and not %lu\n", i, memory_1[i], i);
             return 1;
         }
     }
+    printf("OK\n");
+    test_n++;
+    
+    printf("%lu: realloc to 100000000 two times\ntesting... ", test_n);
+    new_length = 100000000;
+    memory_1 = realloc(memory_1, new_length * sizeof(unsigned long int));
+    memory_2 = realloc(memory_2, new_length * sizeof(unsigned long int));
+    for (size_t i = 0; i < new_length; ++i) {
+        memory_1[i] = i;
+        memory_2[new_length - i - 1] = i;
+    }
+    for (size_t i = 0; i < new_length; ++i) {
+        if(memory_1[i] != i) {
+            printf("FAIL\nrealloc: Memory[%lu] == %lu, and not %lu\n", i, memory_1[i], i);
+            return 1;
+        }
+        if(memory_2[i] != new_length - i - 1) {
+            printf("FAIL\nrealloc: Memory[%lu] == %lu, and not %lu\n", i, memory_2[i], new_length - i);
+            return 1;
+        }
+    }
+    printf("OK\n");
+    test_n++;
+    
+    printf("%lu: freeing NULL\ntesting... ", test_n);
+    free(NULL);
     printf("OK\n");
     test_n++;
 

@@ -94,6 +94,9 @@ void* realloc(void* src, size_t size) {
 }
 
 void free(void* ptr) {
+    if (!ptr)
+        return;
+
     list_t* header = (list_t*) ptr - 1;
     header->free = true;
 }
