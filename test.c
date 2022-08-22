@@ -134,11 +134,11 @@ int main() {
         memory_2 = calloc(new_length, sizeof(unsigned long int));
         for (size_t j = 0; j < new_length; ++j) {
             if (memory_1[j] != 0) {
-                printf("FAIL\nmalloc: Memory[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_1[j], 0lu, i);
+                printf("FAIL\ncalloc: Memory[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_1[j], 0lu, i);
                 return 1;
             }
             if (memory_2[j] != 0) {
-                printf("FAIL\nmalloc: Memory[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_2[j], 0lu, i);
+                printf("FAIL\ncalloc: Memory[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_2[j], 0lu, i);
                 return 1;
             }
         }
@@ -157,11 +157,11 @@ int main() {
         }
         for (size_t j = 0; j < new_length; ++j) {
             if (memory_1[j] != j) {
-                printf("FAIL\nmalloc: Memory[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_1[j], j, i);
+                printf("FAIL\nrealloc: Memory[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_1[j], j, i);
                 return 1;
             }
             if (memory_2[j] != new_length - j - 1) {
-                printf("FAIL\nmalloc: Memory[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_2[j], new_length - j, i);
+                printf("FAIL\nrealloc: Memory[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_2[j], new_length - j, i);
                 return 1;
             }
         }
