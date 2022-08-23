@@ -10,7 +10,6 @@ typedef struct list_t list_t;
 struct list_t {
     size_t size;
     list_t* next;
-    void* data;
     bool free;
 };
 
@@ -19,7 +18,6 @@ list_t* last = NULL;
 
 list_t* create_block(size_t size);
 list_t* get_free_block(list_t* current, size_t size);
-list_t* get_header(void* data);
 
 list_t* create_block(size_t size) {
     list_t* block = sbrk(size + sizeof(list_t));
@@ -51,20 +49,6 @@ list_t* get_free_block(list_t* current, size_t size) {
     return current;
 }
 
-list_t* get_header(void* data) {
-    if (!data)
-        return NULL;
-
-    list_t* current = first;
-    while (current && current->data != data) 
-        current = current->next;
-
-    if (!current) 
-        return NULL;
-
-    return current;
-}
-
 void* malloc(size_t size) {
     list_t* header;
     if (size == 0) 
@@ -82,8 +66,7 @@ void* malloc(size_t size) {
     }
 
     header->free = false;
-    header->data = (header + 1);
-    return header->data;
+    return (header + 1);
 }
 
 void* calloc(size_t n, size_t size) {
@@ -97,15 +80,11 @@ void* calloc(size_t n, size_t size) {
 
 void* realloc(void* src, size_t size) {
     void* block = malloc(size);
-
+    
     if (!src)
         return block;
-
-    list_t* src_header = get_header(src);
-
-    if (!src_header)
-        return block;
-
+    
+    list_t* src_header = (list_t*) src - 1;
     size = size > src_header->size ? src_header->size : size;
 
     if (block) {
