@@ -99,7 +99,7 @@ int main() {
     printf("OK\n");
     test_n++;
     
-    size_t iterations = 2000;
+    size_t iterations = 1000;
     printf("%lu: malloc, storing, and freeing %lu times\ntesting... ", test_n, iterations);
     for (size_t i = 1; i <= iterations; ++i) {
         new_length = 100 * i;
