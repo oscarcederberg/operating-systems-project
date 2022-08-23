@@ -180,7 +180,7 @@ int main() {
     printf("OK\n");
     test_n++;
 
-    size_t allocations = 1000;
+    size_t allocations = 2000;
     new_length = 1000;
     printf("%lu: malloc, store, and free %lu arrays\ntesting... ", test_n, allocations);
     unsigned long int** memories = malloc(allocations * sizeof(unsigned long int*));
@@ -201,6 +201,32 @@ int main() {
             }
             if (!(i % 2) && memories[i][j] != new_length - j - 1) {
                 printf("FAIL\nmalloc: Memory[%lu][%lu] == %lu, and not %lu\n", i, j, memories[i][j], new_length - j);
+                return 1;
+            }
+        }
+        free(memories[i]);
+    }
+    free(memories);
+    printf("OK\n");
+    test_n++;
+    
+    printf("%lu: calloc, store, and free %lu arrays\ntesting... ", test_n, allocations);
+    memories = calloc(allocations, sizeof(unsigned long int*));
+    for (size_t i = 0; i < allocations; i++) {
+        memories[i] = calloc(new_length, sizeof(unsigned long int));
+        for (size_t j = 0; j < new_length; ++j) {
+            if (i % 2)
+                memories[i][j] = j;
+        }
+    }
+    for (size_t i = 0; i < allocations; i++) {
+        for (size_t j = 0; j < new_length; ++j) {
+            if (i % 2 && memories[i][j] != j) {
+                printf("FAIL\ncalloc: Memory[%lu][%lu] == %lu, and not %lu\n", i, j, memories[i][j], j);
+                return 1;
+            }
+            if (!(i % 2) && memories[i][j] != 0) {
+                printf("FAIL\ncalloc: Memory[%lu][%lu] == %lu, and not %lu\n", i, j, memories[i][j], 0lu);
                 return 1;
             }
         }

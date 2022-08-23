@@ -20,6 +20,7 @@ list_t* last = NULL;
 list_t* create_block(size_t size);
 list_t* get_free_block(list_t* current, size_t size);
 void merge_adjacent(list_t* current);
+void split_block(list_t* header, size_t size);
 
 list_t* create_block(size_t size) {
     list_t* block = sbrk(size + sizeof(list_t));
@@ -29,7 +30,8 @@ list_t* create_block(size_t size) {
     
     block->size = size;
     block->next = NULL;
-    
+
+    // TODO: refactor out 
     if (last) {
         last->next = block;
         last = block;
@@ -48,6 +50,8 @@ list_t* get_free_block(list_t* current, size_t size) {
     if (!current) 
         return create_block(size);
 
+    split_block(current, size);
+
     return current;
 }
 
@@ -61,23 +65,31 @@ void merge_adjacent(list_t* header) {
     while (prev && prev->next != header)
         prev = prev->next;
 
-    if (next) {
-        if (next->free) {
-            header->next = next->next;
-            header->size += sizeof(list_t) + next->size;
-            if (last == next)
-                last = header;
-        }
+    if (next && next->free) {
+        header->next = next->next;
+        header->size += sizeof(list_t) + next->size;
+        if (last == next)
+            last = header;
     }
 
-    if (prev) {
-        if (prev->free) {
-            prev->next = header->next;
-            prev->size = sizeof(list_t) + header->size;
-            if (last == header)
-                last = prev;
-        }
+    if (prev && prev->free) {
+        prev->next = header->next;
+        prev->size = sizeof(list_t) + header->size;
+        if (last == header)
+            last = prev;
     }
+}
+
+void split_block(list_t* header, size_t size) {
+    if (header->size <= sizeof(list_t) + size)
+        return;
+    
+    list_t* split = (void*)(header + sizeof(list_t) + size);
+    split->free = true;
+    split->size = header->size - size - sizeof(list_t);
+    header->size = size;
+    split->next = header->next;
+    header->next = split;
 }
 
 void* malloc(size_t size) {
