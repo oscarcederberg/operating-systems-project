@@ -101,7 +101,7 @@ int main() {
     
     size_t iterations = 2000;
     printf("%lu: malloc, storing, and freeing %lu times\ntesting... ", test_n, iterations);
-    for (size_t i = 0; i < iterations; ++i) {
+    for (size_t i = 1; i <= iterations; ++i) {
         new_length = 100 * i;
         free(memory_1);
         free(memory_2);
@@ -126,7 +126,7 @@ int main() {
     test_n++;
     
     printf("%lu: calloc and freeing %lu times\ntesting... ", test_n, iterations);
-    for (size_t i = 0; i < iterations; ++i) {
+    for (size_t i = 1; i <= iterations; ++i) {
         new_length = 100 * i;
         free(memory_1);
         free(memory_2);
@@ -147,7 +147,7 @@ int main() {
     test_n++;
     
     printf("%lu: realloc, storing, and freeing %lu times\ntesting... ", test_n, iterations);
-    for (size_t i = 0; i < iterations; ++i) {
+    for (size_t i = 1; i <= iterations; ++i) {
         new_length = 100 * i;
         memory_1 = realloc(memory_1, new_length * sizeof(unsigned long int));
         memory_2 = realloc(memory_2, new_length * sizeof(unsigned long int));
