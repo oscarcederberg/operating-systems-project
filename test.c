@@ -146,7 +146,7 @@ int main() {
     printf("OK\n");
     test_n++;
     
-    printf("%lu: realloc and freeing %lu times\ntesting... ", test_n, iterations);
+    printf("%lu: realloc, storing, and freeing %lu times\ntesting... ", test_n, iterations);
     for (size_t i = 0; i < iterations; ++i) {
         new_length = 100 * i;
         memory_1 = realloc(memory_1, new_length * sizeof(unsigned long int));
