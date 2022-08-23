@@ -1,5 +1,6 @@
 #include "edaf35_alloc.h"
 
+#include <assert.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -54,15 +55,14 @@ void* malloc(size_t size) {
     if (size == 0) 
         return NULL;
 
-    if (!first) {
+    if (!first)
         header = create_block(size);
-        if (!header) 
-            return NULL;
-    } else {
-        list_t* current = first;
-        header = get_free_block(current, size);
-        if (!header) 
-            return NULL;
+    else
+        header = get_free_block(first, size);
+    
+    if (!header) {
+        assert(false);
+        return NULL;
     }
 
     header->free = false;
@@ -85,6 +85,8 @@ void* realloc(void* src, size_t size) {
         return block;
     
     list_t* src_header = (list_t*) src - 1;
+    assert(src_header->free == false);
+    assert(src_header->size > 0);
     size = size > src_header->size ? src_header->size : size;
 
     if (block) {
@@ -100,5 +102,6 @@ void free(void* ptr) {
         return;
 
     list_t* header = (list_t*) ptr - 1;
+    assert(header->free == false);
     header->free = true;
 }
