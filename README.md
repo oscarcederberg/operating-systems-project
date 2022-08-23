@@ -4,6 +4,13 @@ Oscar Cederberg
 ## Dependencies
 gawk-3.1.8
 
+## Usage
+`make test-<linked/buddy>`:\
+Perform own tests against implementation of `linked`/`buddy` heap manager. Tests are found in `./test.c`, which is copied into the source folder of the implementation during compilation.
+
+`make build-<linked/buddy>`:\
+Copies `edaf35_alloc` header and source files into `./gawk-3.1.8/` and runs `make check` in that folder.
+
 ## Assignment
 1. Your task is to implement two versions of malloc/calloc/realloc and free: One should be a linked-list implementation and the other an implementation of the buddy system.
 2. You need to use `sbrk` to allocate memory from the kernel on Linux for the list version and increment the heap size in suitable steps. For the buddy system, you are allowed to allocate a sufficiently large block at once.
