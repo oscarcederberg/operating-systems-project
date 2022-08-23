@@ -15,6 +15,7 @@ struct list_t {
 };
 
 list_t* first = NULL;
+// TODO: maybe remove, less bookeeping?
 list_t* last = NULL;
 
 list_t* create_block(size_t size);
@@ -29,7 +30,6 @@ list_t* create_block(size_t size) {
         return NULL;
     
     block->size = size;
-    block->next = NULL;
 
     // TODO: refactor out 
     if (last) {
@@ -65,7 +65,10 @@ void merge_adjacent(list_t* header) {
     while (prev && prev->next != header)
         prev = prev->next;
 
+    printf("\ncurr:%lu\n", header->size);
     if (next && next->free) {
+        printf("next:%lu\n", next->size);
+        printf("   +:%lu\n", sizeof(list_t));
         header->next = next->next;
         header->size += sizeof(list_t) + next->size;
         if (last == next)
@@ -73,11 +76,15 @@ void merge_adjacent(list_t* header) {
     }
 
     if (prev && prev->free) {
+        printf("prev:%lu\n", prev->size);
+        printf("   +:%lu\n", sizeof(list_t));
         prev->next = header->next;
-        prev->size = sizeof(list_t) + header->size;
+        prev->size += sizeof(list_t) + header->size;
         if (last == header)
             last = prev;
+        header = prev;
     }
+    printf("after:%lu\n", header->size);
 }
 
 void split_block(list_t* header, size_t size) {
