@@ -7,18 +7,19 @@ unsigned short lfsr = 0xACE1u;
 unsigned bit;
 
 unsigned rand() {
-    bit  = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5) ) & 1;
+    bit = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5) ) & 1;
     return lfsr =  (lfsr >> 1) | (bit << 15);
 }
 
 void shuffle(unsigned long int** array, size_t n) {
-    if (n > 1) {
-        for (size_t i = 0; i < n - 1; i++) {
-          size_t j = i + rand() / (UINT_MAX / (n - i) + 1);
-          unsigned long int* t = array[j];
-          array[j] = array[i];
-          array[i] = t;
-        }
+    if (n == 0)
+        return;
+    
+    for (size_t i = 0; i < n - 1; i++) {
+        size_t j = i + rand() / (UINT_MAX / (n - i) + 1);
+        unsigned long int* t = array[j];
+        array[j] = array[i];
+        array[i] = t;
     }
 }
 

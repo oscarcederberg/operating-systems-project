@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-//#define ENABLE_SPLIT
+#define ENABLE_SPLIT
 
 typedef struct list_t list_t;
 
@@ -73,8 +73,8 @@ void merge_adjacent(list_t* header) {
 
 #ifdef ENABLE_SPLIT
 void split_block(list_t* header, size_t size) {
-    // TODO: i don't think this is correct at all
-    list_t* split = (void*)(header + sizeof(list_t) + size);
+    // NOTE: according to SO and Godbolt, this should work
+    list_t* split = (list_t *)((void *)(header + sizeof(list_t) + size));
     split->free = true;
     split->size = header->size - size - sizeof(list_t);
     header->size = size;
@@ -90,13 +90,11 @@ void* malloc(size_t size) {
 
     if (!first) {
         header = create_block(size);
-        if (last) {
+        if (last)
             last->next = header;
-            last = header;
-        } else {
+        else
             first = header;
-            last = header;
-        }
+        last = header;
     } else {
         header = get_free_block(first, size);
         #ifdef ENABLE_SPLIT
