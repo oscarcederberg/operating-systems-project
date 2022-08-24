@@ -35,15 +35,6 @@ list_t* create_block(size_t size) {
     
     block->size = size;
 
-    // TODO: refactor out 
-    if (last) {
-        last->next = block;
-        last = block;
-    } else {
-        first = block;
-        last = block;
-    }
-
     return block;
 }
 
@@ -124,9 +115,16 @@ void* malloc(size_t size) {
     if (size == 0) 
         return NULL;
 
-    if (!first)
+    if (!first) {
         header = create_block(size);
-    else {
+        if (last) {
+            last->next = header;
+            last = header;
+        } else {
+            first = header;
+            last = header;
+        }
+    } else {
         header = get_free_block(first, size);
         #ifdef SPLIT
         if (header->size > sizeof(list_t) + size)
