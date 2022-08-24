@@ -6,6 +6,10 @@
 #include <stdio.h>
 #include <string.h>
 
+//#define DEBUG_MERGE
+//#define SPLIT
+//#define DEBUG_SPLIT
+
 typedef struct list_t list_t;
 
 struct list_t {
@@ -50,8 +54,6 @@ list_t* get_free_block(list_t* current, size_t size) {
     if (!current) 
         return create_block(size);
 
-    split_block(current, size);
-
     return current;
 }
 
@@ -65,10 +67,15 @@ void merge_adjacent(list_t* header) {
     while (prev && prev->next != header)
         prev = prev->next;
 
+    #ifdef DEBUG_MERGE
     printf("\ncurr:%lu\n", header->size);
+    #endif
     if (next && next->free) {
+        #ifdef DEBUG_MERGE
         printf("next:%lu\n", next->size);
         printf("   +:%lu\n", sizeof(list_t));
+        #endif
+
         header->next = next->next;
         header->size += sizeof(list_t) + next->size;
         if (last == next)
@@ -76,27 +83,40 @@ void merge_adjacent(list_t* header) {
     }
 
     if (prev && prev->free) {
+        #ifdef DEBUG_MERGE
         printf("prev:%lu\n", prev->size);
         printf("   +:%lu\n", sizeof(list_t));
+        #endif
+
         prev->next = header->next;
-        prev->size += sizeof(list_t) + header->size;
+        prev->size = sizeof(list_t) + header->size;
         if (last == header)
             last = prev;
         header = prev;
     }
+
+    #ifdef DEBUG_MERGE
     printf("after:%lu\n", header->size);
+    #endif
 }
 
 void split_block(list_t* header, size_t size) {
-    if (header->size <= sizeof(list_t) + size)
-        return;
-    
+    #ifdef DEBUG_SPLIT
+    printf("\nheader: %p\n%lu ->\n%lu\n", (void*) header, header->size, size);
+    #endif
+
+    // TODO: i don't think this is correct at all
     list_t* split = (void*)(header + sizeof(list_t) + size);
     split->free = true;
     split->size = header->size - size - sizeof(list_t);
     header->size = size;
     split->next = header->next;
     header->next = split;
+
+    #ifdef DEBUG_SPLIT
+    printf("split: %p\n%lu\n", (void*) split, split->size);
+    printf("diff: %ld", ((void *) split) - ((void*) header));
+    #endif
 }
 
 void* malloc(size_t size) {
@@ -106,8 +126,13 @@ void* malloc(size_t size) {
 
     if (!first)
         header = create_block(size);
-    else
+    else {
         header = get_free_block(first, size);
+        #ifdef SPLIT
+        if (header->size > sizeof(list_t) + size)
+            split_block(header, size);
+        #endif
+    }
     
     if (!header) {
         assert(false);
