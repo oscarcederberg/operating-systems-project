@@ -200,8 +200,8 @@ int main() {
     printf("OK\n");
     test_n++;
 
-    size_t allocations = 2000;
-    new_length = 1000;
+    size_t allocations = 10000;
+    new_length = 10000;
     printf("%lu: malloc, store, and free %lu arrays randomly\ntesting... ", test_n, allocations);
     unsigned long int** memories = malloc(allocations * sizeof(unsigned long int*));
     shuffle(memories, allocations);
