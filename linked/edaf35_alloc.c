@@ -30,7 +30,7 @@ void split_block(list_t* header, size_t size);
 list_t* create_block(size_t size) {
     list_t* block = sbrk(size + sizeof(list_t));
     
-    if (!block)
+    if (block == (void *) -1)
         return NULL;
     
     block->size = size;
