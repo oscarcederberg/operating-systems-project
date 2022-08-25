@@ -81,7 +81,7 @@ void split_block(list_t* header, size_t size) {
 #endif
 
 void* malloc(size_t size) {
-    list_t* header;
+    list_t* header = NULL;
     if (size == 0) 
         return NULL;
 
