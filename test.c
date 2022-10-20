@@ -201,9 +201,9 @@ int main() {
     printf("OK\n");
     test_n++;
 
-    size_t allocations = 10000;
-    new_length = 10000;
-    printf("%lu: malloc, store, and free %lu arrays randomly\ntesting... ", test_n, allocations);
+    size_t allocations = 100000;
+    new_length = 1000;
+    printf("%lu: malloc, store, and free %lu arrays of length %lu randomly\ntesting... ", test_n, allocations, new_length);
     unsigned long int** memories = malloc(allocations * sizeof(unsigned long int*));
     shuffle(memories, allocations);
     for (size_t i = 0; i < allocations; i++) {
@@ -215,7 +215,6 @@ int main() {
                 memories[i][new_length - j - 1] = j;
         }
     }
-    shuffle(memories, allocations);
     for (size_t i = 0; i < allocations; i++) {
         for (size_t j = 0; j < new_length; ++j) {
             if (i % 2 && memories[i][j] != j) {
@@ -236,7 +235,7 @@ int main() {
     printf("OK\n");
     test_n++;
     
-    printf("%lu: calloc, store, and free %lu arrays randomly\ntesting... ", test_n, allocations);
+    printf("%lu: calloc, store, and free %lu arrays of length %lu randomly\ntesting... ", test_n, allocations, new_length);
     memories = calloc(allocations, sizeof(unsigned long int*));
     shuffle(memories, allocations);
     for (size_t i = 0; i < allocations; i++) {
@@ -246,7 +245,6 @@ int main() {
                 memories[i][j] = j;
         }
     }
-    shuffle(memories, allocations);
     for (size_t i = 0; i < allocations; i++) {
         for (size_t j = 0; j < new_length; ++j) {
             if (i % 2 && memories[i][j] != j) {
