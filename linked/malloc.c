@@ -1,12 +1,8 @@
-#include "edaf35_alloc.h"
-
 #include <assert.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-
-// #define ENABLE_SPLIT
 
 typedef struct list_t list_t;
 
@@ -16,30 +12,27 @@ struct list_t {
     bool free;
 };
 
-list_t* first = NULL;
-// TODO: maybe remove, less bookeeping?
-list_t* last = NULL;
+list_t *first = NULL;
+list_t *last = NULL;
 
-list_t* create_block(size_t size);
-list_t* get_free_block(list_t* current, size_t size);
+list_t *create_block(size_t size);
+list_t *get_free_block(list_t* current, size_t size);
 void merge_adjacent(list_t* current);
-#ifdef ENABLE_SPLIT
-void split_block(list_t* header, size_t size);
-#endif
 
-list_t* create_block(size_t size) {
+list_t *create_block(size_t size) {
     list_t* block = sbrk(size + sizeof(list_t));
-    
+
     if (block == (void *) -1)
         return NULL;
-    
+
     block->size = size;
+    block->next = NULL;
 
     return block;
 }
 
-list_t* get_free_block(list_t* current, size_t size) {
-    while (current && !(current->free && current->size >= size)) 
+list_t *get_free_block(list_t* current, size_t size) {
+    while (current && !(current->free && current->size >= size))
         current = current->next;
 
     return current;
@@ -48,7 +41,7 @@ list_t* get_free_block(list_t* current, size_t size) {
 void merge_adjacent(list_t* header) {
     list_t* prev = first;
     list_t* next = header->next;
-    
+
     while (prev && prev->next != header)
         prev = prev->next;
 
@@ -68,37 +61,25 @@ void merge_adjacent(list_t* header) {
     }
 }
 
-#ifdef ENABLE_SPLIT
-// TODO: fix or delete this completely
-void split_block(list_t* header, size_t size) {
-    list_t* split = (list_t *)((void *)(header + sizeof(list_t) + size));
-    split->free = true;
-    split->size = header->size - size - sizeof(list_t);
-    header->size = size;
-    split->next = header->next;
-    header->next = split;
-}
-#endif
+void *malloc(size_t size);
+void *calloc(size_t n, size_t size);
+void *realloc(void *src, size_t size);
+void free(void *ptr);
 
-void* malloc(size_t size) {
+void *malloc(size_t size) {
     list_t* header = NULL;
-    if (size == 0) 
+    if (size == 0)
         return NULL;
 
     if (first) {
         header = get_free_block(first, size);
-        
-        #ifdef ENABLE_SPLIT
-        if (header && header->size > sizeof(list_t) + size)
-            split_block(header, size);
-        #endif
     }
-    
+
     if (!header) {
         header = create_block(size);
         if (!header)
             return NULL;
-        
+
         if (last)
             last->next = header;
         else
@@ -110,16 +91,16 @@ void* malloc(size_t size) {
     return (header + 1);
 }
 
-void* calloc(size_t n, size_t size) {
-    void* block = malloc(n * size);
-    
-    if (block) 
+void *calloc(size_t n, size_t size) {
+    void *block = malloc(n * size);
+
+    if (block)
         memset(block, 0, n * size);
 
     return block;
 }
 
-void* realloc(void* src, size_t size) {
+void *realloc(void *src, size_t size) {
     if (size == 0)
         return NULL;
 
@@ -130,16 +111,16 @@ void* realloc(void* src, size_t size) {
             return src;
     }
 
-    void* block = malloc(size);
-    
+    void *block = malloc(size);
+
     if (!src)
         return block;
-    
+
     assert(src_header->free == false);
     assert(src_header->size > 0);
-    size = size > src_header->size ? src_header->size : size;
 
     if (block) {
+        size = size > src_header->size ? src_header->size : size;
         memmove(block, src, size);
         free(src);
     }
@@ -147,7 +128,7 @@ void* realloc(void* src, size_t size) {
     return block;
 }
 
-void free(void* ptr) {
+void free(void *ptr) {
     if (!ptr)
         return;
 
@@ -155,5 +136,5 @@ void free(void* ptr) {
     assert(header->free == false);
     header->free = true;
 
-    merge_adjacent(header);
+    // merge_adjacent(header);
 }

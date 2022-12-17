@@ -1,5 +1,3 @@
-#include "edaf35_alloc.h"
-
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -57,16 +55,21 @@ size_t order_of_size(size_t size) {
 bool get_buddy_index(size_t order, size_t index, size_t* buddy) {
     if (order >= ORDERS) return false;
     size_t offset = pow(2, order);
-    
+
     if ((index / offset) % 2 == 0) *buddy = index + offset;
     else *buddy = index - offset;
 
     return true;
 }
 
+void* malloc(size_t size);
+void* calloc(size_t n, size_t size);
+void* realloc(void* src, size_t size);
+void free(void* ptr);
+
 void* malloc(size_t size) {
     if (size == 0 || size > MAX_SIZE) return NULL;
-    
+
     if (blocks == NULL) init_heap();
 
     return 0;
