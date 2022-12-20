@@ -20,7 +20,7 @@ list_t *get_free_block(list_t* current, size_t size);
 void merge_adjacent(list_t* current);
 
 list_t *create_block(size_t size) {
-    list_t* block = sbrk(size + sizeof(list_t));
+    list_t *block = sbrk(size + sizeof(list_t));
 
     if (block == (void *) -1)
         return NULL;
@@ -39,8 +39,8 @@ list_t *get_free_block(list_t* current, size_t size) {
 }
 
 void merge_adjacent(list_t* header) {
-    list_t* prev = first;
-    list_t* next = header->next;
+    list_t *prev = first;
+    list_t *next = header->next;
 
     while (prev && prev->next != header)
         prev = prev->next;
@@ -67,7 +67,7 @@ void *realloc(void *src, size_t size);
 void free(void *ptr);
 
 void *malloc(size_t size) {
-    list_t* header = NULL;
+    list_t *header = NULL;
     if (size == 0)
         return NULL;
 
@@ -104,7 +104,7 @@ void *realloc(void *src, size_t size) {
     if (size == 0)
         return NULL;
 
-    list_t* src_header;
+    list_t *src_header;
     if (src) {
         src_header = (list_t*) src - 1;
         if (src_header->size >= size)
@@ -132,7 +132,7 @@ void free(void *ptr) {
     if (!ptr)
         return;
 
-    list_t* header = (list_t*) ptr - 1;
+    list_t *header = (list_t*) ptr - 1;
     assert(header->free == false);
     header->free = true;
 

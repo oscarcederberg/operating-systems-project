@@ -1,4 +1,4 @@
-CFLAGS = -Werror -Wall -O0 -g
+CFLAGS = -Werror -Wall -O0 -g -lm
 
 test-linked:
 	cp test.c linked/test.c && \
@@ -9,7 +9,7 @@ test-linked:
 test-buddy:
 	cp test.c buddy/test.c && \
 	cd buddy && \
-	gcc test.c.c -o test $(CFLAGS) && \
+	gcc test.c -o test $(CFLAGS) && \
 	./test
 
 build-linked:
