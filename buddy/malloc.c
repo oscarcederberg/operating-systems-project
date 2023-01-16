@@ -5,7 +5,7 @@
 #include <string.h>
 #include <math.h>
 
-#define MAX_ORDER (6)
+#define MAX_ORDER (24)
 #define BLOCKS (1UL << MAX_ORDER)
 #define MAX_SIZE (BLOCKS * sizeof(unsigned long int))
 
