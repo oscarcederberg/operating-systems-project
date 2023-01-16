@@ -97,8 +97,8 @@ bool split(size_t order, size_t *index) {
 
 void merge(size_t index) {
     size_t order = blocks[index].order;
-
     size_t buddy;
+
     if (!get_buddy_index(order, index, &buddy)) {
         return;
     }
@@ -142,31 +142,31 @@ bool get_free_index(size_t order, size_t *index) {
     return false;
 }
 
-void *_malloc(size_t size, size_t *index);
 void *malloc(size_t size);
 void *calloc(size_t n, size_t size);
 void *realloc(void *src, size_t size);
 void free(void *ptr);
 
-void *_malloc(size_t size, size_t *index) {
-    if (size == 0 || size > MAX_SIZE) return NULL;
+void *malloc(size_t size) {
+    size_t index;
 
-    if (!heap_initialized) init_heap();
-
-    size_t order = min_order_for_size(size);
-
-    if (!get_free_index(order, index) && !split(order - 1, index)) {
+    if (size == 0 || size > MAX_SIZE) {
         return NULL;
     }
 
-    blocks[(*index)].usable = true;
-    blocks[(*index)].free = false;
-    return ((char *) heap + ((*index) * sizeof(unsigned long int)));
-}
+    if (!heap_initialized) {
+        init_heap();
+    }
 
-void *malloc(size_t size) {
-    size_t index;
-    return _malloc(size, &index);
+    size_t order = min_order_for_size(size);
+
+    if (!get_free_index(order, &index) && !split(order - 1, &index)) {
+        return NULL;
+    }
+
+    blocks[index].usable = true;
+    blocks[index].free = false;
+    return ((char *) heap + (index * sizeof(unsigned long int)));
 }
 
 void *calloc(size_t n, size_t size) {
@@ -189,8 +189,7 @@ void *realloc(void *src, size_t size) {
             return src;
     }
 
-    size_t new_index;
-    void *dst = _malloc(size, &new_index);
+    void *dst = malloc(size);
 
     if (!src)
         return dst;
@@ -199,7 +198,7 @@ void *realloc(void *src, size_t size) {
         size_t order = blocks[src_index].order;
 
         size = size > max_size_of_order(order) ? max_size_of_order(order) : size;
-        memmove(dst, src, size);
+        memmove(dst, src, size * sizeof(unsigned long int));
         free(src);
     }
 
