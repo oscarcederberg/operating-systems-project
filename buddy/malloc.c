@@ -5,7 +5,7 @@
 #include <string.h>
 #include <math.h>
 
-#define MAX_ORDER (24)
+#define MAX_ORDER (26)
 #define BLOCKS (1UL << MAX_ORDER)
 #define MAX_SIZE (BLOCKS * sizeof(unsigned long int))
 
@@ -157,7 +157,7 @@ void *malloc(size_t size) {
 
     size_t order = min_order_for_size(size);
 
-    if (!get_free_index(order, &index) && !split(order - 1, &index)) {
+    if (!get_free_index(order, &index) && !split(order + 1, &index)) {
         return NULL;
     }
 
