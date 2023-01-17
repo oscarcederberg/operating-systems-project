@@ -23,6 +23,16 @@ void shuffle(unsigned long int** array, size_t n) {
     }
 }
 
+bool overlaps(unsigned long int *array_1, unsigned long int *array_2, size_t size_1, size_t size_2) {
+    if (array_1 >= array_2 && array_1 <= array_2 + size_2) {
+        return true;
+    } else if (array_2 >= array_1 && array_2 <= array_1 + size_1) {
+        return true;
+    }
+
+    return false;
+}
+
 int main() {
     printf("running tests...\n");
 
@@ -136,6 +146,12 @@ int main() {
             free(memory_1);
             return 1;
         }
+        if (overlaps(memory_1, memory_2, new_length, new_length)) {
+            printf("FAIL\nmalloc: Memory_1 and Memory_2 are overlapping at iteration %lu\n", i);
+            free(memory_1);
+            free(memory_2);
+            return 1;
+        }
         for (size_t j = 0; j < new_length; ++j) {
             memory_1[j] = j;
             memory_2[new_length - j - 1] = j;
@@ -169,6 +185,12 @@ int main() {
             free(memory_1);
             return 1;
         }
+        if (overlaps(memory_1, memory_2, new_length, new_length)) {
+            printf("FAIL\ncalloc: Memory_1 and Memory_2 are overlapping at iteration %lu\n", i);
+            free(memory_1);
+            free(memory_2);
+            return 1;
+        }
         for (size_t j = 0; j < new_length; ++j) {
             if (memory_1[j] != 0) {
                 printf("FAIL\ncalloc: Memory_1[%lu] == %lu, and not %lu at iteration %lu\n", j, memory_1[j], 0lu, i);
@@ -194,6 +216,12 @@ int main() {
         if (!memory_2) {
             printf("FAIL\nrealloc: Memory_2 was null after realloc at iteration %lu\n", i);
             free(memory_1);
+            return 1;
+        }
+        if (overlaps(memory_1, memory_2, new_length, new_length)) {
+            printf("FAIL\nrealloc: Memory_1 and Memory_2 are overlapping at iteration %lu\n", i);
+            free(memory_1);
+            free(memory_2);
             return 1;
         }
         for (size_t j = 0; j < new_length; ++j) {
