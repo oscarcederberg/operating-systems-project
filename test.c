@@ -26,9 +26,7 @@ void shuffle(unsigned long int** array, size_t n) {
 int main() {
     printf("running tests...\n");
 
-    size_t test_n = 1;
-
-    printf("%lu: malloc size 0\ntesting....", test_n);
+    printf("1: malloc size 0\ntesting....");
     unsigned long int* memory_1 = malloc(0);
     if (memory_1) {
         printf("WARNING\nmalloc: Memory is not NULL\n");
@@ -36,19 +34,17 @@ int main() {
         printf("OK\n");
     }
     free(memory_1);
-    test_n++;
 
     size_t length = 10;
-    printf("%lu: malloc size %lu\ntesting... ", test_n, length);
+    printf("2: malloc size %lu\ntesting... ", length);
     memory_1 = malloc(length * sizeof(unsigned long int));
     if (!memory_1) {
         printf("FAIL\nmalloc: Memory is NULL\n");
         return 1;
     }
     printf("OK\n");
-    test_n++;
 
-    printf("%lu: malloc storing values\ntesting... ", test_n);
+    printf("3: malloc storing values\ntesting... ");
     for (size_t i = 0; i < length; ++i) {
         memory_1[i] = i;
     }
@@ -59,9 +55,8 @@ int main() {
         }
     }
     printf("OK\n");
-    test_n++;
 
-    printf("%lu: calloc size 0\ntesting... ", test_n);
+    printf("4: calloc size 0\ntesting... ");
     unsigned long int* memory_2 = calloc(0, sizeof(unsigned long int));
     if (memory_2) {
         printf("WARNING\ncalloc: Memory is not NULL\n");
@@ -69,9 +64,8 @@ int main() {
         printf("OK\n");
     }
     free(memory_2);
-    test_n++;
 
-    printf("%lu: calloc n 0\ntesting... ", test_n);
+    printf("5: calloc n 0\ntesting... ");
     memory_2 = calloc(0, sizeof(unsigned long int));
     if (memory_2) {
         printf("WARNING\ncalloc: Memory is not NULL\n");
@@ -79,9 +73,8 @@ int main() {
         printf("OK\n");
     }
     free(memory_2);
-    test_n++;
 
-    printf("%lu: calloc n %lu\ntesting... ", test_n, length);
+    printf("6: calloc n %lu\ntesting... ", length);
     memory_2 = calloc(length, sizeof(unsigned long int));
     if (!memory_2) {
         printf("FAIL\ncalloc: Memory is NULL\n");
@@ -94,9 +87,8 @@ int main() {
         }
     }
     printf("OK\n");
-    test_n++;
 
-    printf("%lu: realloc src NULL or size 0\ntesting... ", test_n);
+    printf("7: realloc src NULL or size 0\ntesting... ");
     unsigned long int* memory_3 = realloc(NULL, length);
     if (!memory_3) {
         printf("FAIL\nrealloc: Memory is NULL\n");
@@ -108,10 +100,9 @@ int main() {
         return 1;
     }
     printf("OK\n");
-    test_n++;
 
     size_t new_length = 20;
-    printf("%lu: realloc from size %lu to %lu\ntesting... ", test_n, length, new_length);
+    printf("8: realloc from size %lu to %lu\ntesting... ", length, new_length);
     memory_1 = realloc(memory_1, new_length * sizeof(unsigned long int));
     if (!memory_1) {
         printf("FAIL\nrealloc: Memory is NULL\n");
@@ -127,10 +118,9 @@ int main() {
         }
     }
     printf("OK\n");
-    test_n++;
 
     size_t iterations = 100;
-    printf("%lu: malloc, storing, and freeing %lu times\ntesting... ", test_n, iterations);
+    printf("9: malloc, storing, and freeing %lu times\ntesting... ", iterations);
     for (size_t i = 1; i <= iterations; ++i) {
         new_length = 100 * i;
         free(memory_1);
@@ -162,9 +152,8 @@ int main() {
         }
     }
     printf("OK\n");
-    test_n++;
 
-    printf("%lu: calloc and freeing %lu times\ntesting... ", test_n, iterations);
+    printf("10: calloc and freeing %lu times\ntesting... ", iterations);
     for (size_t i = 1; i <= iterations; ++i) {
         new_length = 100 * i;
         free(memory_1);
@@ -192,9 +181,8 @@ int main() {
         }
     }
     printf("OK\n");
-    test_n++;
 
-    printf("%lu: realloc, storing, and freeing %lu times\ntesting... ", test_n, iterations);
+    printf("11: realloc, storing, and freeing %lu times\ntesting... ", iterations);
     for (size_t i = 1; i <= iterations; ++i) {
         new_length = 100 * i;
         memory_1 = realloc(memory_1, new_length * sizeof(unsigned long int));
@@ -224,22 +212,19 @@ int main() {
         }
     }
     printf("OK\n");
-    test_n++;
 
-    printf("%lu: freeing NULL\ntesting... ", test_n);
+    printf("12: freeing NULL\ntesting... ");
     free(NULL);
     printf("OK\n");
-    test_n++;
 
-    printf("%lu: freeing memory\ntesting... ", test_n);
+    printf("13: freeing memory\ntesting... ");
     free(memory_1);
     free(memory_2);
     printf("OK\n");
-    test_n++;
 
     size_t allocations = 10000;
     new_length = 1000;
-    printf("%lu: malloc, store, and free %lu arrays of length %lu randomly\ntesting... ", test_n, allocations, new_length);
+    printf("14: malloc, store, and free %lu arrays of length %lu randomly\ntesting... ", allocations, new_length);
     unsigned long int** memories = malloc(allocations * sizeof(unsigned long int*));
     shuffle(memories, allocations);
     for (size_t i = 0; i < allocations; i++) {
@@ -269,9 +254,8 @@ int main() {
     }
     free(memories);
     printf("OK\n");
-    test_n++;
 
-    printf("%lu: calloc, store, and free %lu arrays of length %lu randomly\ntesting... ", test_n, allocations, new_length);
+    printf("15: calloc, store, and free %lu arrays of length %lu randomly\ntesting... ", allocations, new_length);
     memories = calloc(allocations, sizeof(unsigned long int*));
     shuffle(memories, allocations);
     for (size_t i = 0; i < allocations; i++) {
@@ -303,7 +287,6 @@ int main() {
     }
     free(memories);
     printf("OK\n");
-    test_n++;
 
     return 0;
 }
