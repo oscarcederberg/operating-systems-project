@@ -56,7 +56,7 @@ size_t max_size_of_order(size_t order) {
 }
 
 size_t min_order_for_size(size_t size) {
-    for (size_t order = 0; order < MAX_ORDER + 1; order++) {
+    for (size_t order = 0; order <= MAX_ORDER; order++) {
         if (max_size_of_order(order) >= size) {
             return order;
         }
@@ -172,44 +172,46 @@ void *malloc(size_t size) {
 void *calloc(size_t n, size_t size) {
     void *block = malloc(n * size);
 
-    if (block)
+    if (block) {
         memset(block, 0, n * size);
+    }
 
     return block;
 }
 
 void *realloc(void *src, size_t size) {
-    if (size == 0)
+    if (size == 0) {
         return NULL;
+    }
 
     size_t src_index;
     if (src) {
-        src_index = (size_t) ((char *)((src - heap) / sizeof(unsigned long int)));
-        if (blocks[src_index].order >= min_order_for_size(size))
+        src_index = (src - heap) / sizeof(unsigned long int);
+        if (blocks[src_index].order == min_order_for_size(size)) {
             return src;
+        }
     }
 
     void *dst = malloc(size);
 
-    if (!src)
+    if (!src || !dst) {
         return dst;
-
-    if (dst) {
-        size_t order = blocks[src_index].order;
-
-        size = size > max_size_of_order(order) ? max_size_of_order(order) : size;
-        memmove(dst, src, size * sizeof(unsigned long int));
-        free(src);
     }
+
+    size_t src_size = max_size_of_order(blocks[src_index].order);
+    size = size > src_size ? src_size : size;
+    memmove(dst, src, size * sizeof(unsigned long int));
+    free(src);
 
     return dst;
 }
 
 void free(void *ptr) {
-    if (!ptr)
+    if (!ptr) {
         return;
+    }
 
-    size_t index = (size_t) ((char *)((ptr - heap) / sizeof(unsigned long int)));
+    size_t index = (ptr - heap) / sizeof(unsigned long int);
     assert(blocks[index].free == false);
     blocks[index].free = true;
 
