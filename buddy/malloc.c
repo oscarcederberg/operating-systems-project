@@ -66,13 +66,10 @@ size_t min_order_for_size(size_t size) {
 }
 
 bool split(size_t order, size_t *index) {
-    block_t *block = NULL;
+    block_t *block;
 
-    if (order == MAX_ORDER) {
-        block = &(blocks[0]);
-        if (block->order != MAX_ORDER || !block->free || !block->usable) {
-            return false;
-        }
+    if (order > MAX_ORDER) {
+        return false;
     }
 
     if (get_free_index(order, index) || split(order + 1, index)) {
@@ -97,13 +94,13 @@ bool split(size_t order, size_t *index) {
 
 void merge(size_t index) {
     size_t order = blocks[index].order;
-    size_t buddy;
 
+    size_t buddy;
     if (!get_buddy_index(order, index, &buddy)) {
         return;
     }
 
-    if (blocks[buddy].order == order && blocks[buddy].free) {
+    if (blocks[buddy].order == order && blocks[buddy].usable && blocks[buddy].free) {
         blocks[index].order = order + 1;
         blocks[buddy].usable = false;
         blocks[buddy].order = order + 1;
