@@ -5,7 +5,7 @@
 #include <string.h>
 #include <math.h>
 
-#define MAX_ORDER (22)
+#define MAX_ORDER (20)
 #define BLOCKS (1UL << MAX_ORDER)
 #define MIN_BLOCK_SIZE (64)
 #define MAX_SIZE (BLOCKS * MIN_BLOCK_SIZE)
@@ -32,6 +32,7 @@ block_t *get_free_block(size_t order);
 void init_heap() {
     head = sbrk(MAX_SIZE);
     if (head == (void *) -1) {
+        head = NULL;
         assert(false);
     }
 
