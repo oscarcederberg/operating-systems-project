@@ -108,7 +108,7 @@ block_t *get_buddy_block(block_t *block) {
 
     block_t *buddy;
 
-    if (((unsigned long int) block) / (1UL << order * MIN_BLOCK_SIZE)) {
+    if ((((unsigned long int) block) - ((unsigned long int) head)) / (1UL << order * MIN_BLOCK_SIZE)) {
         buddy = block->prev;
     } else {
         buddy = block->next;
