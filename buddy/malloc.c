@@ -7,7 +7,7 @@
 
 #define MAX_ORDER (20)
 #define BLOCKS (1UL << MAX_ORDER)
-#define MIN_BLOCK_SIZE (64)
+#define MIN_BLOCK_SIZE (96)
 #define MAX_SIZE (BLOCKS * MIN_BLOCK_SIZE)
 
 typedef struct block_t block_t;
@@ -24,7 +24,7 @@ block_t *head = NULL;
 void init_heap();
 size_t max_size_of_order(size_t order);
 size_t min_order_for_size(size_t size);
-void merge(block_t *block);
+bool merge(block_t *block);
 block_t *split(size_t of_order);
 block_t *get_buddy_block(block_t *block);
 block_t *get_free_block(size_t order);
@@ -56,16 +56,16 @@ size_t min_order_for_size(size_t size) {
     return 0;
 }
 
-void merge(block_t *block) {
+bool merge(block_t *block) {
     size_t order = block->order;
 
     block_t *buddy = get_buddy_block(block);
     if (!buddy || buddy->order != order || !buddy->free) {
-        return;
+        return false;
     }
 
     block_t *left, *right;
-    if (block > buddy) {
+    if (block < buddy) {
         left = block;
         right = buddy;
     } else {
@@ -74,7 +74,14 @@ void merge(block_t *block) {
     }
 
     left->order = order + 1;
+    right->order = order + 1;
     left->next = right->next;
+
+    while (merge(block)) {
+        // Merge until merge is not possible
+    }
+
+    return true;
 }
 
 block_t *split(size_t order) {
@@ -95,7 +102,7 @@ block_t *split(size_t order) {
     buddy->order = order - 1;
     buddy->next = block->next;
     buddy->prev = block;
-    block->next = buddy->next;
+    block->next = buddy;
 
     return block;
 }
@@ -113,10 +120,6 @@ block_t *get_buddy_block(block_t *block) {
         buddy = block->prev;
     } else {
         buddy = block->next;
-    }
-
-    if (buddy->order != order) {
-        return NULL;
     }
 
     return buddy;

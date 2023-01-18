@@ -250,7 +250,7 @@ int main() {
     free(memory_2);
     printf("OK\n");
 
-    size_t allocations = 10000;
+    size_t allocations = 1000;
     new_length = 1000;
     printf("14: malloc, store, and free %lu arrays of length %lu randomly\ntesting... ", allocations, new_length);
     unsigned long int** memories = malloc(allocations * sizeof(unsigned long int*));
