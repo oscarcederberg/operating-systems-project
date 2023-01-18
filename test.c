@@ -257,6 +257,10 @@ int main() {
     shuffle(memories, allocations);
     for (size_t i = 0; i < allocations; i++) {
         memories[i] = malloc(new_length * sizeof(unsigned long int));
+        if (!memories[i]) {
+            printf("FAIL\nmalloc: Memory was null after malloc at iteration %lu\n", i);
+            return 1;
+        }
         for (size_t j = 0; j < new_length; ++j) {
             if (i % 2)
                 memories[i][j] = j;
