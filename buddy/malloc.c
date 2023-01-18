@@ -33,7 +33,7 @@ void init_heap() {
     head = sbrk(MAX_SIZE);
     if (head == (void *) -1) {
         head = NULL;
-        assert(false);
+        return;
     }
 
     head->free = true;
