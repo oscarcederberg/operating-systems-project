@@ -5,54 +5,44 @@
 #include <string.h>
 #include <math.h>
 
-#define MAX_ORDER (26)
+#define MAX_ORDER (22)
 #define BLOCKS (1UL << MAX_ORDER)
-#define MAX_SIZE (BLOCKS * sizeof(unsigned long int))
+#define MIN_BLOCK_SIZE (64)
+#define MAX_SIZE (BLOCKS * MIN_BLOCK_SIZE)
 
 typedef struct block_t block_t;
 
 struct block_t {
-    bool usable;
     bool free;
     size_t order;
+    block_t *prev;
+    block_t *next;
 };
 
-block_t blocks[BLOCKS];
-bool heap_initialized = false;
-void *heap;
+block_t *head = NULL;
 
 void init_heap();
 size_t max_size_of_order(size_t order);
 size_t min_order_for_size(size_t size);
-bool split(size_t order, size_t *index);
-void merge(size_t index);
-bool get_buddy_index(size_t order, size_t index, size_t *buddy);
-bool get_free_index(size_t order, size_t *index);
+void merge(block_t *block);
+block_t *split(size_t of_order);
+block_t *get_buddy_block(block_t *block);
+block_t *get_free_block(size_t order);
 
 void init_heap() {
-    heap = sbrk(MAX_SIZE);
-    if (heap == (void *) -1) {
+    head = sbrk(MAX_SIZE);
+    if (head == (void *) -1) {
         assert(false);
     }
-    heap_initialized = true;
 
-    blocks[0] = (block_t) {
-        .usable = true,
-        .free = true,
-        .order = MAX_ORDER
-    };
-
-    for (size_t i = 1; i < BLOCKS; ++i) {
-        blocks[i] = (block_t) {
-            .usable = false,
-            .free = true,
-            .order = MAX_ORDER
-        };
-    }
+    head->free = true;
+    head->order = MAX_ORDER;
+    head->prev = NULL;
+    head->next = NULL;
 }
 
 size_t max_size_of_order(size_t order) {
-    return (1UL << order) * sizeof(unsigned long int);
+    return (1UL << order) * MIN_BLOCK_SIZE - sizeof(block_t);
 }
 
 size_t min_order_for_size(size_t size) {
@@ -65,78 +55,83 @@ size_t min_order_for_size(size_t size) {
     return 0;
 }
 
-bool split(size_t order, size_t *index) {
-    block_t *block;
+void merge(block_t *block) {
+    size_t order = block->order;
 
+    block_t *buddy = get_buddy_block(block);
+    if (!buddy || buddy->order != order || !buddy->free) {
+        return;
+    }
+
+    block_t *left, *right;
+    if (block > buddy) {
+        left = block;
+        right = buddy;
+    } else {
+        left = buddy;
+        right = block;
+    }
+
+    left->order = order + 1;
+    left->next = right->next;
+}
+
+block_t *split(size_t order) {
     if (order > MAX_ORDER) {
         return false;
     }
 
-    if (get_free_index(order, index) || split(order + 1, index)) {
-        block = &(blocks[(*index)]);
-    } else {
-        return false;
+    block_t *block = get_free_block(order);
+    if (!block) {
+        return NULL;
     }
 
-    block->usable = true;
     block->free = true;
     block->order = order - 1;
 
-    size_t buddy_index;
-    get_buddy_index(order - 1, *index, &buddy_index);
+    block_t *buddy = (block_t *) (((void *) block) + (1UL << block->order) * MIN_BLOCK_SIZE);
+    buddy->free = true;
+    buddy->order = order - 1;
+    buddy->next = block->next;
+    buddy->prev = block;
+    block->next = buddy->next;
 
-    block = &(blocks[buddy_index]);
-    block->usable = true;
-    block->free = true;
-    block->order = order - 1;
-    return true;
+    return block;
 }
 
-void merge(size_t index) {
-    size_t order = blocks[index].order;
+block_t *get_buddy_block(block_t *block) {
+    size_t order = block->order;
 
-    size_t buddy;
-    if (!get_buddy_index(order, index, &buddy)) {
-        return;
-    }
-
-    if (blocks[buddy].order == order && blocks[buddy].usable && blocks[buddy].free) {
-        blocks[index].order = order + 1;
-        blocks[buddy].usable = false;
-        blocks[buddy].order = order + 1;
-    }
-}
-
-bool get_buddy_index(size_t order, size_t index, size_t* buddy) {
     if (order >= MAX_ORDER) {
-        return false;
+        return NULL;
     }
 
-    size_t offset = pow(2, order);
+    block_t *buddy;
 
-    if ((index / offset) % 2 == 0) {
-        *buddy = index + offset;
+    if (((unsigned long int) block) / (1UL << order * MIN_BLOCK_SIZE)) {
+        buddy = block->prev;
     } else {
-        *buddy = index - offset;
+        buddy = block->next;
     }
 
-    return true;
+    if (buddy->order != order) {
+        return NULL;
+    }
+
+    return buddy;
 }
 
-bool get_free_index(size_t order, size_t *index) {
-    size_t num_blocks_with_order = 1 << (MAX_ORDER - order);
-    size_t offset = 1 << order;
-    block_t *block = NULL;
+block_t *get_free_block(size_t of_order) {
+    block_t *block = head;
 
-    for (size_t i = 0; i < num_blocks_with_order; i++) {
-        block = &(blocks[i * offset]);
-        if (block->order == order && block->usable && block->free) {
-            (*index) = i * offset;
-            return true;
+    while (block) {
+        if (block->free && block->order == of_order) {
+            return block;
         }
+        block = block->next;
     }
 
-    return false;
+    return split(of_order + 1);
 }
 
 void *malloc(size_t size);
@@ -145,35 +140,33 @@ void *realloc(void *src, size_t size);
 void free(void *ptr);
 
 void *malloc(size_t size) {
-    size_t index;
-
     if (size == 0 || size > MAX_SIZE) {
         return NULL;
     }
 
-    if (!heap_initialized) {
+    if (!head) {
         init_heap();
     }
 
     size_t order = min_order_for_size(size);
 
-    if (!get_free_index(order, &index) && !split(order + 1, &index)) {
+    block_t *block = get_free_block(order);
+    if (!block) {
         return NULL;
     }
 
-    blocks[index].usable = true;
-    blocks[index].free = false;
-    return ((char *) heap + (index * sizeof(unsigned long int)));
+    block->free = false;
+    return (block + 1);
 }
 
 void *calloc(size_t n, size_t size) {
-    void *block = malloc(n * size);
+    void *data = malloc(n * size);
 
-    if (block) {
-        memset(block, 0, n * size);
+    if (data) {
+        memset(data, 0, n * size);
     }
 
-    return block;
+    return data;
 }
 
 void *realloc(void *src, size_t size) {
@@ -181,10 +174,10 @@ void *realloc(void *src, size_t size) {
         return NULL;
     }
 
-    size_t src_index;
+    block_t *src_block;
     if (src) {
-        src_index = (src - heap) / sizeof(unsigned long int);
-        if (blocks[src_index].order == min_order_for_size(size)) {
+        src_block = ((block_t *) src) - 1;
+        if (src_block->order == min_order_for_size(size)) {
             return src;
         }
     }
@@ -195,9 +188,9 @@ void *realloc(void *src, size_t size) {
         return dst;
     }
 
-    size_t src_size = max_size_of_order(blocks[src_index].order);
+    size_t src_size = max_size_of_order(src_block->order);
     size = size > src_size ? src_size : size;
-    memmove(dst, src, size * sizeof(unsigned long int));
+    memmove(dst, src, size);
     free(src);
 
     return dst;
@@ -208,9 +201,9 @@ void free(void *ptr) {
         return;
     }
 
-    size_t index = (ptr - heap) / sizeof(unsigned long int);
-    assert(blocks[index].free == false);
-    blocks[index].free = true;
+    block_t *block = ((block_t *) ptr) - 1;
+    assert(block->free == false);
+    block->free = true;
 
-    merge(index);
+    merge(block);
 }
