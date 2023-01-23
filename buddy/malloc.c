@@ -7,7 +7,7 @@
 
 #define MAX_ORDER (24)
 #define BLOCKS (1UL << MAX_ORDER)
-#define MIN_BLOCK_SIZE (96)
+#define MIN_BLOCK_SIZE (128)
 #define MAX_SIZE (BLOCKS * MIN_BLOCK_SIZE)
 
 typedef struct block_t block_t;
@@ -20,6 +20,7 @@ struct block_t {
 };
 
 block_t *head = NULL;
+size_t free_blocks[MAX_ORDER + 1] = {0};
 
 void init_heap();
 size_t max_size_of_order(size_t order);
@@ -36,6 +37,7 @@ void init_heap() {
         return;
     }
 
+    free_blocks[MAX_ORDER] = 1;
     head->free = true;
     head->order = MAX_ORDER;
     head->prev = NULL;
@@ -76,10 +78,12 @@ bool merge(block_t *block) {
     left->order = order + 1;
     right->order = order + 1;
     left->next = right->next;
+    right->next = NULL;
+    right->prev = NULL;
+    free_blocks[order] -= 2;
+    free_blocks[order + 1] += 1;
 
-    while (merge(block)) {
-        // Merge until merge is not possible
-    }
+    merge(block); // Merge until merge is not possible
 
     return true;
 }
@@ -97,12 +101,15 @@ block_t *split(size_t order) {
     block->free = true;
     block->order = order - 1;
 
-    block_t *buddy = (block_t *) (((void *) block) + (1UL << block->order) * MIN_BLOCK_SIZE);
+    block_t *buddy = (block_t *) (((void *) block) + (1UL << block->order) * MIN_BLOCK_SIZE + sizeof(block_t));
     buddy->free = true;
     buddy->order = order - 1;
     buddy->next = block->next;
     buddy->prev = block;
     block->next = buddy;
+
+    free_blocks[order] -= 1;
+    free_blocks[order - 1] += 2;
 
     return block;
 }
@@ -128,6 +135,10 @@ block_t *get_buddy_block(block_t *block) {
 block_t *get_free_block(size_t of_order) {
     block_t *block = head;
 
+    if (!free_blocks[of_order]) {
+        return split(of_order + 1);
+    }
+
     while (block) {
         if (block->free && block->order == of_order) {
             return block;
@@ -135,7 +146,7 @@ block_t *get_free_block(size_t of_order) {
         block = block->next;
     }
 
-    return split(of_order + 1);
+    return NULL;
 }
 
 void *malloc(size_t size);
@@ -160,6 +171,7 @@ void *malloc(size_t size) {
     }
 
     block->free = false;
+    free_blocks[order] -= 1;
     return (block + 1);
 }
 
@@ -208,6 +220,7 @@ void free(void *ptr) {
     block_t *block = ((block_t *) ptr) - 1;
     assert(block->free == false);
     block->free = true;
+    free_blocks[block->order] += 1;
 
     merge(block);
 }
