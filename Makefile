@@ -8,9 +8,12 @@ test-linked:
 
 test-buddy:
 	cp test.c buddy/test.c && \
+	cp test_freed.c buddy/test_freed.c && \
 	cd buddy && \
 	gcc test.c -o test $(CFLAGS) && \
-	./test
+	gcc test_freed.c -o test_freed $(CFLAGS) && \
+	./test ; \
+	./test_freed
 
 build-linked:
 	cp linked/malloc.* gawk-3.1.8/ && \

@@ -5,3 +5,5 @@ linked/test
 linked/test.c
 buddy/test
 buddy/test.c
+buddy/test_freed
+buddy/test_freed.c
